@@ -1,21 +1,23 @@
 // Load environment variables first
 require('dotenv').config();
 
-// Set environment variables manually if not loaded
-if (!process.env.MONGODB_URI) {
-  process.env.MONGODB_URI = 'mongodb+srv://Anshul_User_1:Anshul_MongoDB@cluster0.1balow3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-}
-if (!process.env.PORT) {
-  process.env.PORT = '5000';
-}
-if (!process.env.GEMINI_API_KEY) {
-  process.env.GEMINI_API_KEY = 'AIzaSyDPuFtcwuut3ZqC9ZL3YQ7Lx2Lhm4Lvnqo';
-}
-if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'development';
-}
-if (!process.env.CORS_ORIGIN) {
-  process.env.CORS_ORIGIN = 'http://localhost:5173';
+// Only set fallback values in development
+if (process.env.NODE_ENV !== 'production') {
+  if (!process.env.MONGODB_URI) {
+    process.env.MONGODB_URI = 'mongodb+srv://Anshul_User_1:Anshul_MongoDB@cluster0.1balow3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+  }
+  if (!process.env.PORT) {
+    process.env.PORT = '5000';
+  }
+  if (!process.env.GEMINI_API_KEY) {
+    process.env.GEMINI_API_KEY = 'AIzaSyDPuFtcwuut3ZqC9ZL3YQ7Lx2Lhm4Lvnqo';
+  }
+  if (!process.env.NODE_ENV) {
+    process.env.NODE_ENV = 'development';
+  }
+  if (!process.env.CORS_ORIGIN) {
+    process.env.CORS_ORIGIN = 'http://localhost:5173';
+  }
 }
 
 const express = require('express');
@@ -35,20 +37,23 @@ const setupSocketHandlers = require('./socket/socket-handlers');
 const app = express();
 const server = createServer(app);
 
-// Socket.io setup
-const io = new Server(server, {
-  cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174"],
-    methods: ["GET", "POST"]
-  }
-});
+// Socket.io setup (only for development)
+let io;
+if (process.env.NODE_ENV !== 'production') {
+  io = new Server(server, {
+    cors: {
+      origin: ["http://localhost:5173", "http://localhost:5174"],
+      methods: ["GET", "POST"]
+    }
+  });
+}
 
 // Connect to database
 connectDB();
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:5173", "http://localhost:5174"],
+  origin: process.env.CORS_ORIGIN || ["http://localhost:5173", "http://localhost:5174"],
   credentials: true
 }));
 
@@ -79,8 +84,10 @@ app.use('*', (req, res) => {
   });
 });
 
-// Setup socket handlers
-setupSocketHandlers(io);
+// Setup socket handlers (only for development)
+if (io) {
+  setupSocketHandlers(io);
+}
 
 const PORT = process.env.PORT || 5000;
 
