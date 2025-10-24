@@ -200,10 +200,7 @@ DEBUG=vite:* npm run dev
 3. Make your changes
 4. Test thoroughly
 5. Submit a pull request
-
-## 📄 License
-
-MIT License - see LICENSE file for details
+6. 
 
 ## 🙏 Acknowledgments
 
