@@ -78,6 +78,47 @@ class ApiClient {
   async healthCheck() {
     return this.request('/api/health')
   }
+
+  // File system operations
+  async createFile(projectId, fileData) {
+    return this.request(`/api/projects/${projectId}/files`, {
+      method: 'POST',
+      body: JSON.stringify(fileData),
+    })
+  }
+
+  async createFolder(projectId, folderData) {
+    return this.request(`/api/projects/${projectId}/folders`, {
+      method: 'POST',
+      body: JSON.stringify(folderData),
+    })
+  }
+
+  async updateFile(projectId, filePath, fileData) {
+    return this.request(`/api/projects/${projectId}/files/${filePath}`, {
+      method: 'PUT',
+      body: JSON.stringify(fileData),
+    })
+  }
+
+  async deleteFile(projectId, filePath) {
+    return this.request(`/api/projects/${projectId}/files/${filePath}`, {
+      method: 'DELETE'
+    })
+  }
+
+  // Cleanup operations
+  async cleanupDummyProjects() {
+    return this.request('/api/projects/cleanup', {
+      method: 'DELETE'
+    })
+  }
+
+  async cleanupUnsavedProjects() {
+    return this.request('/api/projects/cleanup-unsaved', {
+      method: 'DELETE'
+    })
+  }
 }
 
 export const apiClient = new ApiClient()
