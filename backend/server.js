@@ -46,8 +46,10 @@ let io;
 const corsOrigins = process.env.NODE_ENV === 'production' 
   ? [
       process.env.CORS_ORIGIN,
+      'https://code-sync-ten-blue.vercel.app',
       'https://code-sync-eyqecmuw9-anshuls-projects-fa3416c0.vercel.app',
-      'https://code-sync.vercel.app'
+      'https://code-sync.vercel.app',
+      /\.vercel\.app$/
     ]
   : ["http://localhost:5173", "http://localhost:5174"];
 
@@ -64,13 +66,38 @@ connectDB();
 
 // Middleware
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? [
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (process.env.NODE_ENV === 'production') {
+      // Allow all Vercel domains
+      if (origin.match(/\.vercel\.app$/)) {
+        return callback(null, true);
+      }
+      
+      // Allow specific domains
+      const allowedOrigins = [
         process.env.CORS_ORIGIN,
+        'https://code-sync-ten-blue.vercel.app',
         'https://code-sync-eyqecmuw9-anshuls-projects-fa3416c0.vercel.app',
         'https://code-sync.vercel.app'
-      ]
-    : ["http://localhost:5173", "http://localhost:5174"],
+      ];
+      
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      return callback(new Error('Not allowed by CORS'));
+    } else {
+      // Development - allow localhost
+      const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200
 };
