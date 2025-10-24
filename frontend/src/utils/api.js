@@ -6,7 +6,9 @@ class ApiClient {
   }
 
   async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`
+    // Remove leading slash from endpoint if baseURL ends with slash
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+    const url = `${this.baseURL}/${cleanEndpoint}`;
     const config = {
       headers: {
         'Content-Type': 'application/json',
