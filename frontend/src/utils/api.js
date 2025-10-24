@@ -6,7 +6,11 @@ class ApiClient {
   }
 
   async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`
+    // Ensure no double slashes in URL
+    const baseURL = this.baseURL.endsWith('/') ? this.baseURL.slice(0, -1) : this.baseURL;
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${baseURL}${cleanEndpoint}`;
+    
     const config = {
       headers: {
         'Content-Type': 'application/json',
