@@ -44,7 +44,11 @@ const server = createServer(app);
 // Socket.io setup
 let io;
 const corsOrigins = process.env.NODE_ENV === 'production' 
-  ? [process.env.CORS_ORIGIN] 
+  ? [
+      process.env.CORS_ORIGIN,
+      'https://code-sync-eyqecmuw9-anshuls-projects-fa3416c0.vercel.app',
+      'https://code-sync.vercel.app'
+    ]
   : ["http://localhost:5173", "http://localhost:5174"];
 
 io = new Server(server, {
@@ -61,7 +65,11 @@ connectDB();
 // Middleware
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? process.env.CORS_ORIGIN 
+    ? [
+        process.env.CORS_ORIGIN,
+        'https://code-sync-eyqecmuw9-anshuls-projects-fa3416c0.vercel.app',
+        'https://code-sync.vercel.app'
+      ]
     : ["http://localhost:5173", "http://localhost:5174"],
   credentials: true,
   optionsSuccessStatus: 200
