@@ -6,7 +6,11 @@ class ApiClient {
   }
 
   async request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`
+    // Ensure no double slashes in URL
+    const baseURL = this.baseURL.endsWith('/') ? this.baseURL.slice(0, -1) : this.baseURL;
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${baseURL}${cleanEndpoint}`;
+    
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -77,6 +81,47 @@ class ApiClient {
   // Health check
   async healthCheck() {
     return this.request('/api/health')
+  }
+
+  // File system operations
+  async createFile(projectId, fileData) {
+    return this.request(`/api/projects/${projectId}/files`, {
+      method: 'POST',
+      body: JSON.stringify(fileData),
+    })
+  }
+
+  async createFolder(projectId, folderData) {
+    return this.request(`/api/projects/${projectId}/folders`, {
+      method: 'POST',
+      body: JSON.stringify(folderData),
+    })
+  }
+
+  async updateFile(projectId, filePath, fileData) {
+    return this.request(`/api/projects/${projectId}/files/${filePath}`, {
+      method: 'PUT',
+      body: JSON.stringify(fileData),
+    })
+  }
+
+  async deleteFile(projectId, filePath) {
+    return this.request(`/api/projects/${projectId}/files/${filePath}`, {
+      method: 'DELETE'
+    })
+  }
+
+  // Cleanup operations
+  async cleanupDummyProjects() {
+    return this.request('/api/projects/cleanup', {
+      method: 'DELETE'
+    })
+  }
+
+  async cleanupUnsavedProjects() {
+    return this.request('/api/projects/cleanup-unsaved', {
+      method: 'DELETE'
+    })
   }
 }
 
